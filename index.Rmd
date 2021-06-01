@@ -1,0 +1,103 @@
+---
+title: "Comparing Two Means - Sample Size"
+output:
+  flexdashboard::flex_dashboard:
+    orientation: rows
+runtime: shiny
+---
+  
+```{r setup, include=FALSE}
+library(flexdashboard)
+library(shiny)
+
+```
+
+```{r global, include=FALSE}
+
+```
+
+Inputs {.sidebar}
+-------------------------------------
+
+```{r}
+
+numericInput("alpha", label = "Alpha:", value = 0.05)
+  
+numericInput("beta", label = "Beta (power):", value = 0.8)
+  
+numericInput("sigma", label = "Population SD:", value = 20)
+  
+numericInput("d", label = "Difference to be tested:", value = 14)
+
+```
+
+Column {data-width=550}
+-----------------------
+
+### Alpha 
+
+```{r}
+renderGauge({
+  gauge(value=input$alpha, min=0, max=1, symbol="%")
+})
+
+```
+
+### Beta 
+
+```{r}
+renderGauge({
+  gauge(value=input$beta, min=0, max=1, symbol="%")
+})
+```
+
+Column {data-width=550}
+-----------------------
+
+
+
+### Difference 
+
+```{r}
+renderValueBox({
+  valueBox(value=input$d, ico="ion-android-pin")
+})
+```
+
+### Standard Deviation 
+
+```{r}
+renderValueBox({
+  valueBox(value=input$sigma, ico="fas fa-random")
+})
+```
+
+Row 
+-----------------------
+
+### Results
+
+This easy calculator is meant for *two* sample **continuous** variables to test the **means** with **two sided test**. The calculator uses the formula from standard formula based on the normal distribution. References can be found in many texts, for example the Estimation of Sample Size and Power for Comparing Two Means section in Rosner, B., (2015). Fundamentals of Biostatistics. 8th ed. USA: Cengage Learning
+
+$$
+n = (Z_{\alpha/2} + Z_\beta)^2 * 2 * \sigma^2 / d^2
+$$
+
+
+Row 
+-----------------------
+
+### Sample Size for Each Arm
+
+```{r lbtable}
+
+renderValueBox({
+  z_alpha = qnorm(1-input$alpha/2, lower.tail=TRUE)
+  z_beta = qnorm(input$beta, lower.tail=TRUE)
+
+  # number of subjects in each arm
+  n = round((z_alpha + z_beta)^2 * 2 * input$sigma^2 / input$d^2)
+  valueBox(value=n, ico="ion-android-archive")
+})
+
+```
